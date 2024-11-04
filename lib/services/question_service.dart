@@ -20,4 +20,28 @@ class QuestionService {
     }).toList();
   }
 
+  Future<void> saveOrUpdateAnswer(String userId, String questionId, List<String> answers) async {
+    final answerDoc = _firestore
+        .collection('answers')
+        .doc(userId) // Kullanıcı ID'si ile cevapları saklayacağız
+        .collection('userAnswers')
+        .doc(questionId); // Her soru için ayrı belge
+
+    final snapshot = await answerDoc.get();
+    if (snapshot.exists) {
+      // Güncelleme
+      await answerDoc.update({
+        'answers': answers,
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+    } else {
+      // Yeni ekleme
+      await answerDoc.set({
+        'questionId': questionId,
+        'answers': answers,
+        'createdAt': FieldValue.serverTimestamp(),
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+    }
+  }
 }

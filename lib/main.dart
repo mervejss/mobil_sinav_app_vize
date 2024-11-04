@@ -2,6 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart'; // Firestore'ı ekleyin
 import 'package:mobil_sinav_app/screens/exam_screen.dart';
+import 'package:mobil_sinav_app/screens/score_screen.dart';
 import 'firebase_options.dart';
 import 'screens/add_question_screen.dart';
 import 'models/question.dart'; // Modeli ekleyin
@@ -70,7 +71,22 @@ class HomeScreen extends StatelessWidget {
               context,
               MaterialPageRoute(builder: (context) => ExamScreen()),
             );
-          }, child: Text("Sınava Başla"),),
+          }, child: Column(
+            children: [
+              Center(child: Text("Sınava Başla")),
+            ],
+          ),),
+          SizedBox(height: 10,),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ScoreScreen()),
+              );
+            },
+            child: Center(child: Text("Sınav Puanımı Göster")),
+          ),
+
 
         ],
       ),

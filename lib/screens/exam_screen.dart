@@ -1,36 +1,86 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import '../models/question.dart';
-import '../services/question_service.dart';
+import 'package:mobil_sinav_app/models/question.dart';
+import 'package:mobil_sinav_app/services/question_service.dart';
 
-class ExamScreen extends StatelessWidget {
+class ExamScreen extends StatefulWidget {
   final QuestionService _questionService = QuestionService();
+  final String userId = 'currentUserId'; // Kullanıcı ID'si, oturum açmış kullanıcıya göre belirlenmeli
+
+  @override
+  _ExamScreenState createState() => _ExamScreenState();
+}
+
+class _ExamScreenState extends State<ExamScreen> {
+  final List<QuestionCardState> _questionStates = [];
+
+  Future<void> saveAnswers() async {
+    for (var questionCardState in _questionStates) {
+      await widget._questionService.saveOrUpdateAnswer(
+        widget.userId,
+        questionCardState.widget.question.id,
+        questionCardState.selectedAnswers,
+      );
+    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Cevaplar kaydedildi!')),
+    );
+    Navigator.pop(context); // Ana sayfaya dön
+  }
+
+  Future<void> _showSaveConfirmationDialog() async {
+    bool confirm = await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Yanıtları Göndermek İstediğinize Emin misiniz?"),
+          content: Text("Test yanıtlarınızı göndermek üzeresiniz. Onaylıyor musunuz?"),
+          actions: [
+            TextButton(
+              child: Text("Hayır"),
+              onPressed: () {
+                Navigator.of(context).pop(false); // Save işlemini iptal et
+              },
+            ),
+            TextButton(
+              child: Text("Evet"),
+              onPressed: () {
+                Navigator.of(context).pop(true); // Save işlemini onayla
+              },
+            ),
+          ],
+        );
+      },
+    );
+    if (confirm) {
+      await saveAnswers();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Sınav Ekranı'),
+        title: Text(
+          'Sınav Ekranı',
+          style: TextStyle(color: Colors.white),
+        ),
         backgroundColor: Color(0xFF6650A4),
         actions: [
           IconButton(
-            icon: Icon(Icons.save),
-            onPressed: () {
-              // KAYDET butonuna tıklanınca yapılacak işlemler
-            },
+            icon: Icon(Icons.save, color: Colors.white),
+            onPressed: _showSaveConfirmationDialog,
           ),
         ],
       ),
       body: FutureBuilder<List<Question>>(
-        future: _questionService.getQuestions(),
+        future: widget._questionService.getQuestions(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
           }
           if (snapshot.hasError) {
-            return Center(child: Text('Bir hata oluştu: ${snapshot.error}')); // Hata mesajını göster
+            return Center(child: Text('Bir hata oluştu: ${snapshot.error}'));
           }
-
           if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return Center(child: Text('Henüz soru yok.'));
           }
@@ -40,27 +90,39 @@ class ExamScreen extends StatelessWidget {
             itemCount: questions.length,
             itemBuilder: (context, index) {
               final question = questions[index];
-              return QuestionCard(question: question);
+              final questionCard = QuestionCard(
+                question: question,
+                onInit: (QuestionCardState state) {
+                  _questionStates.add(state); // State’i listeye ekle
+                },
+              );
+              return questionCard;
             },
           );
         },
       ),
-
     );
   }
 }
 
 class QuestionCard extends StatefulWidget {
   final Question question;
+  final void Function(QuestionCardState) onInit;
 
-  QuestionCard({required this.question});
+  QuestionCard({required this.question, required this.onInit});
 
   @override
-  _QuestionCardState createState() => _QuestionCardState();
+  QuestionCardState createState() => QuestionCardState();
 }
 
-class _QuestionCardState extends State<QuestionCard> {
+class QuestionCardState extends State<QuestionCard> {
   List<String> selectedAnswers = [];
+
+  @override
+  void initState() {
+    super.initState();
+    widget.onInit(this); // State’i ExamScreen’e bildir
+  }
 
   @override
   Widget build(BuildContext context) {
