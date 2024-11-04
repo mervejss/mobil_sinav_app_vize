@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "745585172447",
+    "project_id": "mobilsinavapp",
+    "storage_bucket": "mobilsinavapp.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:745585172447:android:313bb7e3c9738c6cfb6e6a",
+        "android_client_info": {
+          "package_name": "com.example.mobil_sinav_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBw--PuGVSaR0Be2Z3zZg4j1GLwkxaRDPk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:745585172447:android:aec79a37cdbd5be5fb6e6a",
+        "android_client_info": {
+          "package_name": "com.nour.mobil_sinav_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBw--PuGVSaR0Be2Z3zZg4j1GLwkxaRDPk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
