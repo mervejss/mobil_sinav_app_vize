@@ -1,18 +1,13 @@
 import 'package:flutter/material.dart';
-import '../models/question.dart'; // Question modelini içe aktar
-import '../services/question_service.dart'; // QuestionService sınıfını içe aktar
 
 class AddQuestionScreen extends StatefulWidget {
-  final Question? question; // Optional olarak bir soru alıyoruz, var mı diye kontrol edeceğiz
 
-  AddQuestionScreen({this.question}); // Constructor ile soru alabiliyoruz
 
   @override
   _AddQuestionScreenState createState() => _AddQuestionScreenState(); // StatefulWidget için state oluşturuluyor
 }
 
 class _AddQuestionScreenState extends State<AddQuestionScreen> {
-  final QuestionService _questionService = QuestionService(); // QuestionService nesnesi oluşturuluyor
   final TextEditingController _questionController = TextEditingController(); // Soru metni için controller
   final TextEditingController _pointController = TextEditingController(); // Puan için controller
 
@@ -24,27 +19,6 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
   @override
   void initState() {
     super.initState();
-
-    // Eğer widget.question null değilse (yani bir soru düzenleniyorsa), o zaman veriler yüklenir
-    if (widget.question != null) {
-      _questionController.text = widget.question!.questionText; // Soru metni yükleniyor
-      _pointController.text = widget.question!.point.toString(); // Puan yükleniyor
-      _questionType = widget.question!.isMultipleChoice ? 'Çoktan Seçmeli' : 'Açık Uçlu'; // Soru tipi belirleniyor
-      _allowMultipleSelection = widget.question!.isMultiAnswer; // Çoklu seçim izni belirleniyor
-
-      // Sorunun seçeneklerini controller'lara yükleme
-      for (var option in widget.question!.options) {
-        _optionControllers.add(TextEditingController(text: option));
-      }
-
-      // Eğer soru çoktan seçmeli ise doğru seçeneklerin indeksleri yükleniyor
-      if (widget.question!.isMultipleChoice) {
-        _selectedCorrectOptionIndices = widget.question!.correctAnswer
-            .split(', ') // Doğru cevapları virgülle ayır
-            .map((answer) => widget.question!.options.indexOf(answer)) // Seçeneklerin indekslerini al
-            .toList();
-      }
-    }
   }
 
   @override
@@ -56,7 +30,6 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
     }
     super.dispose();
   }
-
   // Seçenek alanı eklemek için fonksiyon
   void _addOptionField() {
     setState(() {
@@ -72,7 +45,7 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
     });
   }
 
-  // Bir seçeneği doğru seçenek olarak işaretlemek ya da işaretini kaldırmak için fonksiyon
+// Bir seçeneği doğru seçenek olarak işaretlemek ya da işaretini kaldırmak için fonksiyon
   void _toggleCorrectOption(int index) {
     setState(() {
       if (_allowMultipleSelection) {
@@ -86,53 +59,6 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
         // Eğer tek seçimse, sadece bir doğru cevap olabilir
         _selectedCorrectOptionIndices = [index];
       }
-    });
-  }
-
-  // Yeni soru eklemek için fonksiyon
-  void _addQuestion() {
-    final question = Question(
-      id: '', // Yeni soru olduğunda id boş gelir
-      questionText: _questionController.text, // Soru metnini al
-      options: _optionControllers.map((e) => e.text).toList(), // Seçenekleri al
-      correctAnswer: (_questionType == 'Çoktan Seçmeli' && _selectedCorrectOptionIndices.isNotEmpty)
-          ? _selectedCorrectOptionIndices.map((index) => _optionControllers[index].text).join(", ") // Doğru cevapları al
-          : '',
-      isMultipleChoice: _questionType == 'Çoktan Seçmeli', // Çoktan seçmeli mi?
-      isMultiAnswer: _allowMultipleSelection, // Birden fazla seçenek seçilebilir mi?
-      isOpenEnded: _questionType == 'Açık Uçlu', // Açık uçlu soru mu?
-      point: int.tryParse(_pointController.text) ?? 0, // Puanı al, geçersizse 0 olarak ayarla
-    );
-
-    _questionService.addQuestion(question).then((_) {
-      // Soru ekleme başarılı olursa
-      Navigator.pop(context); // Sayfayı geri kapat
-    }).catchError((error) {
-      // Hata durumunda
-      print("Soru eklenirken hata oluştu: $error");
-    });
-  }
-
-  // Var olan soruyu güncellemek için fonksiyon
-  void _updateQuestion() {
-    if (widget.question == null) return;
-
-    final updatedQuestion = widget.question!.copyWith(
-      questionText: _questionController.text, // Soru metnini güncelle
-      options: _optionControllers.map((e) => e.text).toList(), // Seçenekleri güncelle
-      correctAnswer: (_questionType == 'Çoktan Seçmeli' && _selectedCorrectOptionIndices.isNotEmpty)
-          ? _selectedCorrectOptionIndices.map((index) => _optionControllers[index].text).join(", ") // Doğru cevapları güncelle
-          : '',
-      isMultipleChoice: _questionType == 'Çoktan Seçmeli', // Çoktan seçmeli mi?
-      isMultiAnswer: _allowMultipleSelection, // Birden fazla seçenek seçilebilir mi?
-      isOpenEnded: _questionType == 'Açık Uçlu', // Açık uçlu soru mu?
-      point: int.tryParse(_pointController.text) ?? 0, // Puanı güncelle
-    );
-
-    _questionService.updateQuestion(updatedQuestion).then((_) {
-      Navigator.pop(context); // Güncelleme başarılıysa geri dön
-    }).catchError((error) {
-      print("Soru güncellenirken hata oluştu: $error");
     });
   }
 
@@ -211,6 +137,7 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
                     ],
                   ),
                   // Container widget'ı, tüm seçeneklerin yer aldığı bölgeyi sarar ve sınırları çizer.
+                  // Container widget'ı, tüm seçeneklerin yer aldığı bölgeyi sarar ve sınırları çizer.
                   Container(
                     decoration: BoxDecoration(
                       // BoxDecoration, kenarlık rengi ve kalınlığını ayarlar
@@ -278,9 +205,9 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
 
 // Soruyu eklemek ya da güncellemek için bir buton eklenir.
                 ElevatedButton(
-                  onPressed: widget.question != null ? _updateQuestion : _addQuestion,
+                  onPressed: () {},
                   // Eğer mevcut bir soru varsa, 'Soruyu Güncelle' butonuna basılır, yoksa 'Soruyu Ekle' butonuna basılır
-                  child: Center(child: Text(widget.question != null ? 'Soruyu Güncelle' : 'Soruyu Ekle')),
+                  child: Center(child: Text('Soruyu Güncelle/Soruyu Ekle')),
                 ),
 
               ],

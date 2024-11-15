@@ -1,20 +1,14 @@
-// Gerekli Firebase ve Flutter paketlerini import ediyoruz.
-import 'package:firebase_core/firebase_core.dart'; // Firebase ile bağlantı kurmak için gerekli.
+// Gerekli Flutter paketlerini import ediyoruz.
 import 'package:flutter/material.dart'; // Flutter uygulaması için Material tasarım bileşenlerini kullanmak için gerekli.
-import 'package:cloud_firestore/cloud_firestore.dart'; // Firestore veritabanı işlemleri için gerekli.
 import 'package:mobil_sinav_app/screens/exam_screen.dart'; // Sınav ekranını import ediyoruz.
 import 'package:mobil_sinav_app/screens/question_list_screen.dart'; // Soru listesini gösteren ekranı import ediyoruz.
 import 'package:mobil_sinav_app/screens/score_screen.dart'; // Puan ekranını import ediyoruz.
-import 'firebase_options.dart'; // Firebase seçeneklerini tanımladığımız dosya.
 import 'screens/add_question_screen.dart'; // Yeni soru eklemek için ekranı import ediyoruz.
-import 'models/question.dart'; // Soru modelini import ediyoruz.
 
 // Ana fonksiyonumuzda Firebase'i başlatıyoruz ve uygulamayı çalıştırıyoruz.
 void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // Flutter'ın UI ile ilgili işlemlerinin başlamadan önce çalışmasını sağlıyoruz.
-  await Firebase.initializeApp( // Firebase'i başlatıyoruz.
-    options: DefaultFirebaseOptions.currentPlatform, // Firebase seçeneklerini mevcut platforma göre belirliyoruz.
-  );
+
   runApp(MyApp()); // Uygulamayı çalıştırıyoruz.
 }
 
