@@ -1,105 +1,97 @@
-import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart'; // Firestore'ı ekleyin
-import 'package:mobil_sinav_app/screens/exam_screen.dart';
-import 'package:mobil_sinav_app/screens/score_screen.dart';
-import 'firebase_options.dart';
-import 'screens/add_question_screen.dart';
-import 'models/question.dart'; // Modeli ekleyin
+// Gerekli Firebase ve Flutter paketlerini import ediyoruz.
+import 'package:firebase_core/firebase_core.dart'; // Firebase ile bağlantı kurmak için gerekli.
+import 'package:flutter/material.dart'; // Flutter uygulaması için Material tasarım bileşenlerini kullanmak için gerekli.
+import 'package:cloud_firestore/cloud_firestore.dart'; // Firestore veritabanı işlemleri için gerekli.
+import 'package:mobil_sinav_app/screens/exam_screen.dart'; // Sınav ekranını import ediyoruz.
+import 'package:mobil_sinav_app/screens/question_list_screen.dart'; // Soru listesini gösteren ekranı import ediyoruz.
+import 'package:mobil_sinav_app/screens/score_screen.dart'; // Puan ekranını import ediyoruz.
+import 'firebase_options.dart'; // Firebase seçeneklerini tanımladığımız dosya.
+import 'screens/add_question_screen.dart'; // Yeni soru eklemek için ekranı import ediyoruz.
+import 'models/question.dart'; // Soru modelini import ediyoruz.
 
+// Ana fonksiyonumuzda Firebase'i başlatıyoruz ve uygulamayı çalıştırıyoruz.
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
+  WidgetsFlutterBinding.ensureInitialized(); // Flutter'ın UI ile ilgili işlemlerinin başlamadan önce çalışmasını sağlıyoruz.
+  await Firebase.initializeApp( // Firebase'i başlatıyoruz.
+    options: DefaultFirebaseOptions.currentPlatform, // Firebase seçeneklerini mevcut platforma göre belirliyoruz.
   );
-  runApp(MyApp());
+  runApp(MyApp()); // Uygulamayı çalıştırıyoruz.
 }
 
+// MyApp sınıfı, uygulamanın kök widget'ıdır. StatelessWidget kullanılarak oluşturulmuş.
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Mobil Sınav Uygulaması',
-      home: HomeScreen(),
+    return MaterialApp( // Material tasarımını kullanan bir uygulama başlatıyoruz.
+      title: 'Mobil Sınav Uygulaması', // Uygulamanın başlığını belirliyoruz.
+      home: HomeScreen(), // Ana ekranı belirliyoruz.
     );
   }
 }
-/*
-StreamBuilder<QuerySnapshot>(
-            stream: FirebaseFirestore.instance.collection('questions').snapshots(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return Center(child: CircularProgressIndicator());
-              }
-              if (snapshot.hasError) {
-                return Center(child: Text('Bir hata oluştu!'));
-              }
-              if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                return Center(child: Text('Henüz soru yok.'));
-              }
 
-              final questions = snapshot.data!.docs.map((doc) {
-                return Question.fromMap(doc.id, doc.data() as Map<String, dynamic>);
-              }).toList();
-
-              return ListView.builder(
-                itemCount: questions.length,
-                itemBuilder: (context, index) {
-                  final question = questions[index];
-                  return ListTile(
-                    title: Text(question.questionText),
-                    subtitle: Text('Cevaplar: ${question.options.join(", ")}'),
-                  );
-                },
-              );
-            },
-          ),
- */
+// HomeScreen sınıfı, ana ekranı temsil eder. StatelessWidget kullanılır çünkü ekranın durumu değişmeyecek.
 class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('Sınav Uygulaması',
-        style: TextStyle(color: Colors.white),
+    return Scaffold( // Scaffold, temel bir uygulama sayfası yapısı sunar.
+      appBar: AppBar( // Uygulamanın üst kısmındaki başlık çubuğu.
+        title: Text('Sınav Uygulaması', // Başlık metnini belirliyoruz.
+          style: TextStyle(color: Colors.white), // Başlık metninin rengini beyaz yapıyoruz.
+        ),
+        backgroundColor: Color(0xFF6650A4), // AppBar'ın arka plan rengini belirliyoruz.
       ),
-        backgroundColor:  Color(0xFF6650A4),
-      ),
-      body: Column(
+      body: Column( // Sayfa gövdesini dikey olarak düzenlemek için Column widget'ı kullanıyoruz.
         children: [
-          ElevatedButton(onPressed: (){
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => ExamScreen()),
-            );
-          }, child: Column(
-            children: [
-              Center(child: Text("Sınava Başla")),
-            ],
-          ),),
-          SizedBox(height: 10,),
+          // 'Sınava Başla' butonunu oluşturuyoruz.
           ElevatedButton(
-            onPressed: () {
-              Navigator.push(
+            onPressed: (){ // Butona tıklanıldığında yapılacak işlemi belirliyoruz.
+              Navigator.push( // Navigator ile başka bir ekrana geçiş yapıyoruz.
                 context,
-                MaterialPageRoute(builder: (context) => ScoreScreen()),
+                MaterialPageRoute(builder: (context) => ExamScreen()), // Sınav ekranına yönlendiriyoruz.
               );
             },
-            child: Center(child: Text("Sınav Puanımı Göster")),
+            child: Column( // Butonun içeriğini düzenliyoruz.
+              children: [
+                Center(child: Text("Sınava Başla")), // Butonun ortasında "Sınava Başla" yazısını gösteriyoruz.
+              ],
+            ),
           ),
+          SizedBox(height: 10,), // Butonlar arasında boşluk bırakıyoruz.
 
+          // 'Sınav Puanımı Göster' butonunu oluşturuyoruz.
+          ElevatedButton(
+            onPressed: () { // Butona tıklanıldığında yapılacak işlemi belirliyoruz.
+              Navigator.push( // Navigator ile başka bir ekrana geçiş yapıyoruz.
+                context,
+                MaterialPageRoute(builder: (context) => ScoreScreen()), // Puan ekranına yönlendiriyoruz.
+              );
+            },
+            child: Center(child: Text("Sınav Puanımı Göster")), // Butonun içeriğini düzenliyoruz.
+          ),
+          SizedBox(height: 10), // Butonlar arasında boşluk bırakıyoruz.
 
+          // 'Eklenen Soruları Göster' butonunu oluşturuyoruz.
+          ElevatedButton(
+            onPressed: () { // Butona tıklanıldığında yapılacak işlemi belirliyoruz.
+              Navigator.push( // Navigator ile başka bir ekrana geçiş yapıyoruz.
+                context,
+                MaterialPageRoute(builder: (context) => QuestionListScreen()), // Soru listesi ekranına yönlendiriyoruz.
+              );
+            },
+            child: Center(child: Text("Eklenen Soruları Göster/Güncelle")), // Butonun içeriğini düzenliyoruz.
+          ),
         ],
       ),
+      // Sayfanın sağ alt köşesinde bir FloatingActionButton (FAB) ekliyoruz.
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
+        onPressed: () { // Butona tıklanıldığında yapılacak işlemi belirliyoruz.
+          Navigator.push( // Navigator ile başka bir ekrana geçiş yapıyoruz.
             context,
-            MaterialPageRoute(builder: (context) => AddQuestionScreen()),
+            MaterialPageRoute(builder: (context) => AddQuestionScreen()), // Yeni soru ekleme ekranına yönlendiriyoruz.
           );
         },
-        child: Icon(Icons.add),
+        child: Icon(Icons.add), // FAB'ye bir artı işareti (ikon) ekliyoruz.
       ),
-
     );
   }
 }
